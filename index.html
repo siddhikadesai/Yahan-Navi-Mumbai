@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kharghar Sector 14 — Local Directory</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F6F1E7;
+    --card: #FFFFFF;
+    --ink: #2A2925;
+    --muted: #8C8678;
+    --line: #DDD6C7;
+    --accent: #33543D;
+    --accent-soft: rgba(51,84,61,0.07);
+    --gold: #C99A3D;
+    --error: #B3461C;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body { height: 100%; margin: 0; }
+
+  body {
+    background: var(--paper);
+    font-family: 'Inter', sans-serif;
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .app {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .topbar {
+    padding: 22px 24px 0;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .progress {
+    flex: 1;
+    height: 4px;
+    background: var(--line);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--accent);
+    width: 0%;
+    transition: width 0.4s ease;
+  }
+
+  .counter {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    color: var(--muted);
+    min-width: 54px;
+    text-align: right;
+  }
+
+  .stage {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+  }
+
+  .card-stack {
+    position: relative;
+    width: 100%;
+    max-width: 560px;
+  }
+
+  .ghost-card {
+    position: absolute;
+    inset: 0;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+  }
+
+  .ghost-1 { transform: rotate(-2deg) translateY(10px); z-index: 1; opacity: 0.7; }
+  .ghost-2 { transform: rotate(2deg) translateY(18px); z-index: 0; opacity: 0.4; }
+
+  .card {
+    position: relative;
+    z-index: 2;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 16px;
+    padding: 40px 32px;
+    min-height: 340px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    box-shadow: 0 8px 24px rgba(43,41,37,0.06);
+    animation: cardIn 0.35s ease;
+  }
+
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .eyebrow {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+
+  .label {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(22px, 4.5vw, 30px);
+    font-weight: 700;
+    line-height: 1.25;
+    margin: 0;
+  }
+
+  .helper {
+    font-size: 14px;
+    color: var(--muted);
+    margin: -8px 0 0;
+  }
+
+  .field-wrap { margin-top: auto; }
+
+  input[type=text], input[type=tel], textarea {
+    width: 100%;
+    border: none;
+    border-bottom: 2px solid var(--line);
+    background: transparent;
+    font-family: 'Inter', sans-serif;
+    font-size: 18px;
+    padding: 10px 2px;
+    color: var(--ink);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  input::placeholder, textarea::placeholder { color: #BDB6A6; }
+
+  input:focus, textarea:focus { border-bottom-color: var(--accent); }
+
+  textarea { resize: vertical; min-height: 90px; }
+
+  .key-hint {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 6px;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .option-btn {
+    text-align: left;
+    padding: 14px 16px;
+    border: 2px solid var(--line);
+    border-radius: 10px;
+    background: var(--card);
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    color: var(--ink);
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+  }
+
+  .option-btn:hover { border-color: var(--accent); }
+
+  .option-btn.selected {
+    border-color: var(--accent);
+    background: var(--accent-soft);
+  }
+
+  .option-btn:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+
+  .check-mark {
+    display: inline-block;
+    width: 18px;
+    margin-right: 8px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .other-input {
+    margin-top: 4px;
+    width: 100%;
+    border: 2px solid var(--line);
+    border-radius: 10px;
+    background: transparent;
+    font-family: 'Inter', sans-serif;
+    font-size: 15px;
+    padding: 10px 14px;
+    color: var(--ink);
+    outline: none;
+  }
+
+  .other-input:focus { border-color: var(--accent); }
+
+  .consent-text {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--ink);
+    background: var(--accent-soft);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+
+  .sub-field-label {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: -10px;
+  }
+
+  .error-msg {
+    color: var(--error);
+    font-size: 13px;
+    margin-top: -8px;
+  }
+
+  .nav {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 24px 28px;
+    max-width: 560px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .nav-btn {
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    border: none;
+    border-radius: 10px;
+    padding: 13px 24px;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+
+  .nav-btn.next {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .nav-btn.next:disabled { opacity: 0.55; cursor: not-allowed; }
+  .nav-btn.next:active:not(:disabled) { transform: scale(0.98); }
+
+  .nav-btn.back {
+    background: transparent;
+    color: var(--muted);
+    padding: 13px 6px;
+  }
+
+  .nav-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* Intro / end screens */
+  .intro-card, .end-card {
+    text-align: left;
+  }
+
+  .intro-title {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(28px, 6vw, 38px);
+    font-weight: 700;
+    line-height: 1.2;
+    margin: 0;
+  }
+
+  .intro-body {
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--ink);
+  }
+
+  .intro-meta {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .start-btn {
+    align-self: flex-start;
+    margin-top: 8px;
+    background: var(--accent);
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-weight: 600;
+    font-size: 16px;
+    border: none;
+    border-radius: 10px;
+    padding: 14px 28px;
+    cursor: pointer;
+  }
+
+  .preview-box {
+    margin-top: 12px;
+    width: 100%;
+    min-height: 120px;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 12px;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 12px;
+    color: var(--ink);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card { animation: none; }
+    .progress-fill { transition: none; }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="progress"><div class="progress-fill" id="progressFill"></div></div>
+    <div class="counter" id="counter"></div>
+  </div>
+  <div class="stage">
+    <div class="card-stack" id="cardStack">
+      <div class="ghost-card ghost-2" id="ghost2"></div>
+      <div class="ghost-card ghost-1" id="ghost1"></div>
+      <div class="card" id="card"></div>
+    </div>
+  </div>
+  <div class="nav" id="nav">
+    <button class="nav-btn back" id="backBtn" aria-label="Back">← Back</button>
+    <button class="nav-btn next" id="nextBtn">Next ↵</button>
+  </div>
+</div>
+
+<script>
+  // ---------------------------------------------------------------
+  // CONFIG: paste your form endpoint here. See bottom of chat reply
+  // for setup instructions (Formspree or Google Sheets).
+  // ---------------------------------------------------------------
+  const FORM_ENDPOINT = "https://formspree.io/f/YOUR_FORM_ID";
+
+  const questions = [
+    {
+      id: 'name',
+      type: 'text',
+      label: "What's your business or shop called?",
+      placeholder: 'e.g. Sai Plumbing Works',
+      required: true
+    },
+    {
+      id: 'service',
+      type: 'text',
+      label: 'What service(s) do you provide?',
+      placeholder: 'e.g. plumbing, tap and pipe repair, water tank cleaning',
+      required: true
+    },
+    {
+      id: 'area',
+      type: 'text',
+      label: "Where's your business located?",
+      helper: 'Building, road, or a nearby landmark in Sector 14',
+      placeholder: 'e.g. Near Central Park, Plot 12',
+      required: true
+    },
+    {
+      id: 'duration',
+      type: 'select',
+      label: 'How long have you been running this business here?',
+      options: ['Less than 1 year', '1–3 years', '3–5 years', '5+ years'],
+      required: true
+    },
+    {
+      id: 'contact',
+      type: 'tel',
+      label: "What's the best contact number for this listing?",
+      placeholder: '10-digit mobile number',
+      required: true
+    },
+    {
+      id: 'details',
+      type: 'textarea',
+      label: 'Anything else customers should know about what you do?',
+      helper: "A line or two is enough — this is what we'll show in the listing.",
+      placeholder: 'e.g. We also do emergency call-outs on weekends.',
+      required: false
+    },
+    {
+      id: 'reach',
+      type: 'checkbox',
+      label: 'How can customers reach you?',
+      options: ['Phone call', 'WhatsApp', 'Walk-in only', 'Other'],
+      required: true,
+      other: true
+    },
+    {
+      id: 'source',
+      type: 'checkbox',
+      label: 'Most new customers find you through...',
+      options: [
+        'Walk-in or signboard',
+        'Referral from neighbours',
+        'Referral from another shop or business',
+        'WhatsApp or local groups',
+        'Repeat customers',
+        'Other'
+      ],
+      required: true,
+      other: true
+    },
+    {
+      id: 'hours',
+      type: 'text',
+      label: 'What days and hours are you usually open?',
+      placeholder: 'e.g. Mon–Sat, 9am–8pm',
+      required: true
+    },
+    {
+      id: 'closed',
+      type: 'text',
+      label: "Any days you're usually closed?",
+      placeholder: 'e.g. Sundays',
+      required: false
+    },
+    {
+      id: 'busiest',
+      type: 'text',
+      label: 'Busiest day or time?',
+      helper: 'Optional',
+      placeholder: 'e.g. Weekday evenings',
+      required: false
+    },
+    {
+      id: 'consent',
+      type: 'consent',
+      label: 'Almost done',
+      required: false
+    }
+  ];
+
+  const TOTAL = questions.length;
+
+  // step: -1 = intro, 0..TOTAL-1 = questions, TOTAL = end
+  let step = -1;
+  let answers = {};
+  let errorMsg = '';
+  let submitting = false;
+
+  const cardEl = document.getElementById('card');
+  const progressFill = document.getElementById('progressFill');
+  const counterEl = document.getElementById('counter');
+  const navEl = document.getElementById('nav');
+  const backBtn = document.getElementById('backBtn');
+  const nextBtn = document.getElementById('nextBtn');
+
+  function setAnswer(id, value) {
+    answers[id] = value;
+    errorMsg = '';
+  }
+
+  function getCheckboxState(id) {
+    if (!answers[id]) answers[id] = { selected: [], other: '' };
+    return answers[id];
+  }
+
+  function toggleOption(id, option) {
+    const state = getCheckboxState(id);
+    const i = state.selected.indexOf(option);
+    if (i >= 0) state.selected.splice(i, 1);
+    else state.selected.push(option);
+    errorMsg = '';
+    render();
+  }
+
+  function validateCurrent() {
+    const q = questions[step];
+    if (!q.required) return true;
+
+    if (q.type === 'text' || q.type === 'tel' || q.type === 'textarea') {
+      const v = (answers[q.id] || '').toString().trim();
+      if (!v) { errorMsg = 'This one helps us list you properly — please fill it in.'; return false; }
+    }
+    if (q.type === 'select') {
+      if (!answers[q.id]) { errorMsg = 'Pick the option that fits best.'; return false; }
+    }
+    if (q.type === 'checkbox') {
+      const state = getCheckboxState(q.id);
+      if (!state.selected.length) { errorMsg = 'Pick at least one option.'; return false; }
+    }
+    return true;
+  }
+
+  function goNext() {
+    if (step >= 0 && step < TOTAL) {
+      if (!validateCurrent()) { render(); return; }
+    }
+    if (step === TOTAL - 1) {
+      submitForm();
+      return;
+    }
+    step++;
+    errorMsg = '';
+    render();
+  }
+
+  function goBack() {
+    if (step <= 0) { step = -1; render(); return; }
+    step--;
+    errorMsg = '';
+    render();
+  }
+
+  function goStart() {
+    step = 0;
+    render();
+  }
+
+  async function submitForm() {
+    submitting = true;
+    render();
+
+    const payload = {};
+    questions.forEach(q => {
+      if (q.type === 'checkbox') {
+        const state = getCheckboxState(q.id);
+        payload[q.id] = state.selected.join(', ') + (state.other ? ` (Other: ${state.other})` : '');
+      } else if (q.type === 'consent') {
+        payload['contact_name'] = answers['consent_name'] || '';
+        payload['contact_phone'] = answers['consent_phone'] || '';
+      } else {
+        payload[q.id] = answers[q.id] || '';
+      }
+    });
+    payload['submitted_at'] = new Date().toISOString();
+
+    if (FORM_ENDPOINT.includes('YOUR_FORM_ID')) {
+      // No endpoint configured yet — fall back to a local preview.
+      submitting = false;
+      step = TOTAL;
+      window.__lastPayload = payload;
+      render();
+      return;
+    }
+
+    try {
+      const res = await fetch(FORM_ENDPOINT, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(payload)
+      });
+      submitting = false;
+      if (res.ok) {
+        step = TOTAL;
+        window.__lastPayload = null;
+      } else {
+        errorMsg = "Couldn't submit — please try again.";
+      }
+      render();
+    } catch (e) {
+      submitting = false;
+      errorMsg = "Couldn't submit — check your connection and try again.";
+      render();
+    }
+  }
+
+  function render() {
+    // progress + counter
+    if (step <= -1) {
+      progressFill.style.width = '0%';
+      counterEl.textContent = '';
+    } else if (step >= TOTAL) {
+      progressFill.style.width = '100%';
+      counterEl.textContent = '';
+    } else {
+      progressFill.style.width = `${(step / TOTAL) * 100}%`;
+      counterEl.textContent = `${String(step + 1).padStart(2, '0')} / ${TOTAL}`;
+    }
+
+    cardEl.innerHTML = '';
+    cardEl.classList.remove('intro-card', 'end-card');
+
+    if (step === -1) {
+      renderIntro();
+      navEl.style.display = 'none';
+      return;
+    }
+    if (step === TOTAL) {
+      renderEnd();
+      navEl.style.display = 'none';
+      return;
+    }
+
+    navEl.style.display = 'flex';
+    renderQuestion(questions[step]);
+
+    backBtn.style.visibility = step === 0 ? 'hidden' : 'visible';
+    nextBtn.textContent = step === TOTAL - 1 ? (submitting ? 'Sending…' : 'Submit') : 'Next ↵';
+    nextBtn.disabled = submitting;
+  }
+
+  function renderIntro() {
+    cardEl.classList.add('intro-card');
+    cardEl.innerHTML = `
+      <div class="eyebrow">Sector 14, Kharghar</div>
+      <h1 class="intro-title">A local directory, built by the neighbourhood</h1>
+      <p class="intro-body">
+        We're putting together a directory of local service providers in Kharghar Sector 14 —
+        plumbers, tailors, tutors, electricians, tiffin services, and everything in between —
+        so people nearby can find the right person when they need one.
+      </p>
+      <p class="intro-meta">Takes about 2 minutes · 12 short questions</p>
+      <button class="start-btn" id="startBtn">Get started</button>
+    `;
+    document.getElementById('startBtn').addEventListener('click', goStart);
+  }
+
+  function renderEnd() {
+    cardEl.classList.add('end-card');
+    let previewHtml = '';
+    if (window.__lastPayload) {
+      previewHtml = `
+        <p class="helper">This form isn't connected to a response sheet yet, so here's what would have been submitted — copy it for now.</p>
+        <textarea class="preview-box" readonly>${JSON.stringify(window.__lastPayload, null, 2)}</textarea>
+      `;
+    }
+    cardEl.innerHTML = `
+      <div class="eyebrow">Thank you</div>
+      <h1 class="intro-title">You're on the list.</h1>
+      <p class="intro-body">
+        Thanks for taking the time. If we need anything else to finish your listing,
+        we'll reach out on the number you shared.
+      </p>
+      ${previewHtml}
+    `;
+  }
+
+  function renderQuestion(q) {
+    const eyebrow = document.createElement('div');
+    eyebrow.className = 'eyebrow';
+    eyebrow.textContent = `Question ${step + 1} of ${TOTAL}`;
+    cardEl.appendChild(eyebrow);
+
+    const label = document.createElement('h2');
+    label.className = 'label';
+    label.textContent = q.label;
+    cardEl.appendChild(label);
+
+    if (q.helper) {
+      const helper = document.createElement('p');
+      helper.className = 'helper';
+      helper.textContent = q.helper;
+      cardEl.appendChild(helper);
+    }
+
+    if (q.type === 'text' || q.type === 'tel') {
+      const wrap = document.createElement('div');
+      wrap.className = 'field-wrap';
+      const input = document.createElement('input');
+      input.type = q.type;
+      input.placeholder = q.placeholder || '';
+      input.value = answers[q.id] || '';
+      input.addEventListener('input', e => setAnswer(q.id, e.target.value));
+      input.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); goNext(); }
+      });
+      wrap.appendChild(input);
+      const hint = document.createElement('div');
+      hint.className = 'key-hint';
+      hint.textContent = 'press Enter ↵ to continue';
+      wrap.appendChild(hint);
+      cardEl.appendChild(wrap);
+      setTimeout(() => input.focus(), 50);
+    }
+
+    if (q.type === 'textarea') {
+      const wrap = document.createElement('div');
+      wrap.className = 'field-wrap';
+      const textarea = document.createElement('textarea');
+      textarea.placeholder = q.placeholder || '';
+      textarea.value = answers[q.id] || '';
+      textarea.addEventListener('input', e => setAnswer(q.id, e.target.value));
+      wrap.appendChild(textarea);
+      cardEl.appendChild(wrap);
+      setTimeout(() => textarea.focus(), 50);
+    }
+
+    if (q.type === 'select') {
+      const wrap = document.createElement('div');
+      wrap.className = 'options field-wrap';
+      q.options.forEach(opt => {
+        const btn = document.createElement('button');
+        btn.className = 'option-btn' + (answers[q.id] === opt ? ' selected' : '');
+        btn.textContent = opt;
+        btn.addEventListener('click', () => {
+          setAnswer(q.id, opt);
+          render();
+          setTimeout(goNext, 250);
+        });
+        wrap.appendChild(btn);
+      });
+      cardEl.appendChild(wrap);
+    }
+
+    if (q.type === 'checkbox') {
+      const state = getCheckboxState(q.id);
+      const wrap = document.createElement('div');
+      wrap.className = 'options field-wrap';
+      q.options.forEach(opt => {
+        const selected = state.selected.includes(opt);
+        const btn = document.createElement('button');
+        btn.className = 'option-btn' + (selected ? ' selected' : '');
+        btn.innerHTML = `<span class="check-mark">${selected ? '✓' : ' '}</span>${opt}`;
+        btn.addEventListener('click', () => toggleOption(q.id, opt));
+        wrap.appendChild(btn);
+      });
+      cardEl.appendChild(wrap);
+
+      if (q.other && state.selected.includes('Other')) {
+        const otherInput = document.createElement('input');
+        otherInput.className = 'other-input';
+        otherInput.type = 'text';
+        otherInput.placeholder = 'Please specify';
+        otherInput.value = state.other || '';
+        otherInput.addEventListener('input', e => { state.other = e.target.value; });
+        wrap.appendChild(otherInput);
+        setTimeout(() => otherInput.focus(), 50);
+      }
+    }
+
+    if (q.type === 'consent') {
+      const consentText = document.createElement('p');
+      consentText.className = 'consent-text';
+      consentText.textContent = 'We may contact your business to verify a few details and learn more about your business to best classify it in this directory.';
+      cardEl.appendChild(consentText);
+
+      const wrap = document.createElement('div');
+      wrap.className = 'field-wrap';
+
+      const nameLabel = document.createElement('div');
+      nameLabel.className = 'sub-field-label';
+      nameLabel.textContent = 'Name (optional)';
+      wrap.appendChild(nameLabel);
+
+      const nameInput = document.createElement('input');
+      nameInput.type = 'text';
+      nameInput.placeholder = 'Your name';
+      nameInput.value = answers['consent_name'] || '';
+      nameInput.addEventListener('input', e => answers['consent_name'] = e.target.value);
+      wrap.appendChild(nameInput);
+
+      const phoneLabel = document.createElement('div');
+      phoneLabel.className = 'sub-field-label';
+      phoneLabel.style.marginTop = '14px';
+      phoneLabel.textContent = 'Number we can reach you on (optional)';
+      wrap.appendChild(phoneLabel);
+
+      const phoneInput = document.createElement('input');
+      phoneInput.type = 'tel';
+      phoneInput.placeholder = 'Phone or WhatsApp number';
+      phoneInput.value = answers['consent_phone'] || '';
+      phoneInput.addEventListener('input', e => answers['consent_phone'] = e.target.value);
+      wrap.appendChild(phoneInput);
+
+      cardEl.appendChild(wrap);
+    }
+
+    if (errorMsg) {
+      const err = document.createElement('div');
+      err.className = 'error-msg';
+      err.textContent = errorMsg;
+      cardEl.appendChild(err);
+    }
+  }
+
+  backBtn.addEventListener('click', goBack);
+  nextBtn.addEventListener('click', goNext);
+
+  render();
+</script>
+</body>
+</html>
